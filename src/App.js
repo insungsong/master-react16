@@ -1,75 +1,42 @@
 import React, { Component, Fragment } from "react";
-import { createPortal } from "react-dom";
 
-const BoundaryHOC = (ProtectedComponent) =>
-  class Boundary extends Component {
-    state = {
-      hasError: false
-    };
-    componentDidCatch = () => {
-      this.setState({
-        hasError: true
-      });
-    };
-    render() {
-      const { hasError } = this.state;
-      if (hasError) {
-        return <ErrorFallback />;
-      } else {
-        return <ProtectedComponent />;
-      }
-    }
-  };
+const MAX_PIZZAS = 20;
 
-class ErrorMaker extends Component {
+const eatPizza = (state, props) => {
+  const { pizzas } = state;
+  if (pizzas < MAX_PIZZAS) {
+    return {
+      pizzas: pizzas + 1
+    };
+  } else {
+    return null;
+  }
+};
+
+class Controlled extends Component {
   state = {
-    friends: ["insung", "gildong", "minsu"]
+    pizzas: 10
   };
-
-  componentDidMount() {
-    setTimeout(() => {
-      this.setState({
-        friends: undefined
-      });
-    }, 2000);
-  }
-
   render() {
-    const { friends } = this.state;
-    return friends.map((friend) => `${friend} `);
+    const { pizzas } = this.state;
+    return (
+      <button onClick={this._handleClick}>{`I have eten ${pizzas} ${
+        pizzas === 1 ? "pizza" : "pizzas"
+      }`}</button>
+    );
   }
+  _handleClick = () => {
+    this.setState(eatPizza);
+  };
 }
-
-const PErrorMaker = BoundaryHOC(ErrorMaker);
-
-class Portals extends Component {
-  render() {
-    return createPortal(<Message />, document.getElementById("touchme"));
-  }
-}
-
-const PPortals = BoundaryHOC(Portals);
-
-const Message = () => "Just touched this";
-
-class ReturnTypes extends Component {
-  render() {
-    return "Hello!";
-  }
-}
-
-const ErrorFallback = () => "Sorry something went wrong..";
 
 class App extends Component {
   render() {
     return (
       <Fragment>
-        <ReturnTypes />
-        <PPortals />
-        <PErrorMaker />
+        <Controlled />
       </Fragment>
     );
   }
 }
-
 export default App;
